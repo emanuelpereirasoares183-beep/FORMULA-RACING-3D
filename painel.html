@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow"><title>Painel do Dono · FORMULA RACING 3D</title>
+<style>
+:root{color-scheme:dark;--bg:#07080d;--card:#121623;--ln:#262c3f;--red:#e10600;--mut:#8b93aa}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:14px;padding-top:calc(14px + env(safe-area-inset-top,0px));padding-bottom:calc(20px + env(safe-area-inset-bottom,0px));max-width:760px;margin:0 auto}
+h1{margin:0 0 4px;font-size:22px;font-style:italic;letter-spacing:1px}h1 span{color:var(--red)}
+h2{margin:0 0 10px;font-size:15px;color:var(--mut);text-transform:uppercase;letter-spacing:1px}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:14px;margin-top:12px}
+#st{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--mut)}#dot{width:10px;height:10px;border-radius:50%;background:#c33;flex:none}#dot.ok{background:#2c5}
+.kp{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.kp div{background:#0c0f19;border-radius:10px;padding:10px;text-align:center}.kp b{display:block;font-size:30px;font-variant-numeric:tabular-nums}.kp small{color:var(--mut);font-size:11px}
+#on b{color:#4cff7a}
+textarea,select{width:100%;font:inherit;color:#fff;background:#0c0f19;border:1px solid var(--ln);border-radius:10px;padding:10px}
+textarea{min-height:84px;resize:vertical}
+.r{display:flex;gap:8px;margin-top:8px}.r>*{flex:1}
+button{font:inherit;font-weight:700;color:#fff;background:var(--red);border:0;border-radius:10px;padding:12px;cursor:pointer}button.alt{background:#2a2f3d}button:disabled{opacity:.5}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:7px 4px;text-align:left;border-bottom:1px solid var(--ln)}th{color:var(--mut);font-weight:600;font-size:12px}
+.tg{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11px;background:#2a2f3d}.tg.corrida{background:#7a1a1a}.tg.sala{background:#1a4a7a}
+.h{font-size:13px;padding:6px 0;border-bottom:1px solid var(--ln)}.h i{color:var(--mut);font-style:normal;font-size:11px;display:block}
+.e{color:var(--mut);font-size:13px}#msg{font-size:13px;margin-top:8px;min-height:16px}
+</style></head><body>
+<h1>PAINEL <span>DO DONO</span></h1>
+<div id="st"><i id="dot"></i><span id="stt">Iniciando...</span></div>
+<div class="card" id="lk"><h2>Acesso do dono</h2><input id="pw" type="password" placeholder="Senha do painel" autocomplete="current-password" style="width:100%;font:inherit;color:#fff;background:#0c0f19;border:1px solid var(--ln);border-radius:10px;padding:12px"><div class="r"><button id="un">Entrar</button></div><div id="lm" class="e" style="margin-top:8px"></div></div>
+<div id="app" hidden>
+<div class="card"><h2>Jogadores</h2><div class="kp"><div id="on"><b>0</b><small>online agora</small></div><div id="td"><b>0</b><small>entraram hoje</small></div><div id="tt"><b>0</b><small>pessoas diferentes</small></div></div>
+<p class="e" style="margin:10px 0 0">A contagem só enxerga quem entra enquanto esta página está aberta. Deixe-a aberta (tela ligada) para não perder ninguém.</p></div>
+<div class="card"><h2>Quem está jogando</h2><div id="pl"></div></div>
+<div class="card"><h2>Enviar aviso</h2>
+<textarea id="tx" maxlength="200" placeholder="Ex.: Manutenção às 20h. Entrem na sala do campeonato!"></textarea>
+<div class="r"><select id="kd"><option value="info">📢 Aviso</option><option value="alert">⚠ Alerta</option></select><select id="du"><option value="10">Some em 10s</option><option value="30" selected>Some em 30s</option><option value="60">Some em 1 min</option><option value="0">Fica até fechar</option></select></div>
+<div class="r"><button id="sd">Enviar para quem está online</button></div>
+<div class="r"><button id="pn" class="alt" style="display:none">Parar de reenviar aviso fixo</button></div>
+<div id="msg"></div></div>
+<div class="card"><h2>Avisos enviados</h2><div id="hs"></div></div>
+<div class="card"><button id="rs" class="alt" style="width:100%">Zerar contagem deste painel</button></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
+<script>window.Peer||document.write('<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"><\/script>')</script>
+<script>
+const ADM_ID='frm3d-adm-0daf128eb9d20fcf33',ENC={"s": "V6P66Gkscufjil2bPgybAQ==", "i": "vPkm03K1/tenPeGT", "c": "u/2w+/sf+sbOBAm1XNYcZkVglspzPGNt8/LJFV2EV4rY8fhJUQUi8IJ28KseddRHkzL+LslAYWvLWasihzm0HwloJlhH7s7q+nNpgSG/QZti5Jf+6dJR03hUP15mU3Tmlo/mzhWe6zR1lqt2Wa/doHA9X8ilr8jDE55BwOalzWLSWf+022M9giBGk02Gf4g/LxY/+mxs0q7pEpLF2vL5Dclgf4nYcICxWX0Yg9aTibe5HP4kB/4PcSVxpDSG7UEJ"};
+const $=id=>document.getElementById(id),LS='frmAdm1';
+let st={seen:{},hist:[],pinned:null};try{st=Object.assign(st,JSON.parse(localStorage.getItem(LS)))}catch(e){}
+const persist=()=>{try{localStorage.setItem(LS,JSON.stringify(st))}catch(e){}};
+const live=new Map(),clean=s=>String(s==null?'':s).replace(/[<>&"'`]/g,'').slice(0,20);
+let peer=null,key=null;
+function status(t,ok){$('stt').textContent=t;$('dot').className=ok?'ok':''}
+function say(t){$('msg').textContent=t}
+function ago(ts){const s=Math.max(0,(Date.now()-ts)/1000|0);return s<60?s+'s':s<3600?(s/60|0)+'min':(s/3600|0)+'h'}
+function draw(){const now=Date.now();
+ for(const[k,p]of live)if(now-p.last>35000||!p.cn.open)live.delete(k);
+ const d0=new Date();d0.setHours(0,0,0,0);const seen=Object.values(st.seen);
+ $('on').firstChild.textContent=live.size;$('td').firstChild.textContent=seen.filter(o=>o.last>=d0).length;$('tt').firstChild.textContent=seen.length;
+ const rows=[...live.values()].sort((a,b)=>a.n.localeCompare(b.n));
+ $('pl').innerHTML=rows.length?'<table><tr><th>Nome</th><th>Está em</th><th>Visto</th></tr>'+rows.map(p=>'<tr><td>'+(p.n||'(sem nome)')+'</td><td><span class="tg '+p.s+'">'+p.s+'</span></td><td>'+ago(p.last)+'</td></tr>').join('')+'</table>':'<span class="e">Ninguém online agora.</span>';
+ $('hs').innerHTML=st.hist.length?st.hist.map(h=>'<div class="h">'+(h.k==='alert'?'⚠ ':'📢 ')+h.text.replace(/</g,'&lt;')+'<i>'+new Date(h.ts).toLocaleString('pt-BR')+' · chegou a '+h.n+' jogador(es)</i></div>').join(''):'<span class="e">Nenhum aviso enviado ainda.</span>';
+ $('pn').style.display=st.pinned?'block':'none'}
+function start(){try{peer&&peer.destroy()}catch(e){}
+ if(!window.Peer){status('A biblioteca de rede não carregou. Verifique a internet e recarregue.',0);return}
+ peer=new Peer(ADM_ID);status('Conectando ao servidor de salas...',0);
+ peer.on('open',()=>status('Painel ativo. Jogadores com o jogo aberto aparecem aqui.',1));
+ peer.on('error',e=>{const t=e.type;if(t==='unavailable-id')status('Já existe outro painel aberto com este código. Feche a outra aba/aparelho e recarregue.',0);else if(t==='network'||t==='server-error'||t==='socket-error'||t==='socket-closed'){status('Sem conexão com o servidor. Tentando de novo...',0);setTimeout(start,5000)}else status('Erro: '+t,0)});
+ peer.on('disconnected',()=>{status('Reconectando...',0);try{peer.reconnect()}catch(e){}});
+ peer.on('connection',cn=>{
+  cn.on('open',()=>{if(st.pinned)try{cn.send(st.pinned)}catch(e){}});
+  cn.on('data',d=>{if(!d||d.t!=='p')return;const id=clean(d.id);if(!id)return;const now=Date.now();
+   live.set(cn.peer,{cn,id,n:clean(d.n),s:['menu','sala','corrida'].includes(d.s)?d.s:'menu',last:now});
+   if(!st.seen[id]&&Object.keys(st.seen).length>=5000)return;
+   const o=st.seen[id]||(st.seen[id]={first:now});o.last=now;o.n=clean(d.n)||o.n||'';persist();draw()});
+  const gone=()=>{if(live.get(cn.peer)&&live.get(cn.peer).cn===cn)live.delete(cn.peer);draw()};cn.on('close',gone);cn.on('error',gone)})}
+$('sd').onclick=async()=>{const text=$('tx').value.trim();if(!text){say('Escreva o aviso primeiro.');return}
+ if(!key){say('Chave de assinatura indisponível neste navegador. Abra o painel no Chrome.');return}
+ const k=$('kd').value,sec=+$('du').value,ts=Date.now();
+ try{const sig=await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},key,new TextEncoder().encode(ts+'|'+k+'|'+sec+'|'+text));
+  const msg={t:'ann',text,k,sec,ts,sig:btoa(String.fromCharCode(...new Uint8Array(sig)))};
+  let n=0;for(const p of live.values())if(p.cn.open){try{p.cn.send(msg);n++}catch(e){}}
+  if(sec===0)st.pinned=msg;st.hist.unshift({ts,text,k,n});st.hist=st.hist.slice(0,20);persist();
+  $('tx').value='';say('Aviso enviado para '+n+' jogador(es) online.'+(sec===0?' Ele também aparece para quem entrar depois.':''));draw()}catch(e){say('Não consegui enviar: '+e.message)}};
+$('pn').onclick=()=>{st.pinned=null;persist();say('Aviso fixo removido: não será mais enviado a quem entrar.');draw()};
+$('rs').onclick=()=>{if(confirm('Zerar a contagem e o histórico deste painel?')){st={seen:{},hist:[],pinned:null};persist();draw()}};
+const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function unlock(){const pw=$('pw').value;if(!pw)return;$('lm').textContent='Verificando...';
+ try{if(!crypto.subtle)throw new Error('nosubtle');
+  const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
+  const ak=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64(ENC.s),iterations:250000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']);
+  const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(ENC.i)},ak,b64(ENC.c));
+  key=await crypto.subtle.importKey('jwk',JSON.parse(new TextDecoder().decode(pt)),{name:'ECDSA',namedCurve:'P-256'},false,['sign'])
+ }catch(e){$('lm').textContent=e.message==='nosubtle'?'Este navegador não permite criptografia aqui. Abra o endereço https no Chrome.':'Senha incorreta.';return}
+ $('lk').style.display='none';$('app').hidden=false;draw();start();setInterval(draw,3000)}
+$('un').onclick=unlock;$('pw').addEventListener('keydown',e=>{if(e.key==='Enter')unlock()});
+</script></body></html>

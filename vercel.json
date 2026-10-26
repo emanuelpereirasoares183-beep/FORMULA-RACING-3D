@@ -1,0 +1,53 @@
+{
+ "cleanUrls": true,
+ "headers": [
+  {
+   "source": "/sw.js",
+   "cleanUrls": true,
+ "headers": [
+    {
+     "key": "Cache-Control",
+     "value": "public, max-age=0, must-revalidate"
+    }
+   ]
+  },
+  {
+   "source": "/manifest.json",
+   "cleanUrls": true,
+ "headers": [
+    {
+     "key": "Content-Type",
+     "value": "application/manifest+json"
+    }
+   ]
+  },
+  {
+   "source": "/painel",
+   "cleanUrls": true,
+ "headers": [
+    {
+     "key": "X-Robots-Tag",
+     "value": "noindex, nofollow"
+    },
+    {
+     "key": "Cache-Control",
+     "value": "no-store"
+    }
+   ]
+  },
+  {
+   "source": "/painel.html",
+   "cleanUrls": true,
+ "headers": [
+    {
+     "key": "X-Robots-Tag",
+     "value": "noindex, nofollow"
+    },
+    {
+     "key": "Cache-Control",
+     "value": "no-store"
+    }
+   ]
+  }
+ ]
+}
